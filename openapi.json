@@ -728,6 +728,218 @@
       }
     }
   },
+  "/repayments": {
+  "get": {
+    "summary": "List repayments",
+    "description": "Retrieve a paginated list of repayments. Supports filtering by loanId and borrowerId.",
+    "parameters": [
+      {
+        "name": "loanId",
+        "in": "query",
+        "description": "Filter repayments by loan ID.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "loan_98765"
+        }
+      },
+      {
+        "name": "borrowerId",
+        "in": "query",
+        "description": "Filter repayments by borrower ID.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "bor_12345"
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "description": "Filter repayments by status.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["recorded", "failed", "reversed"]
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "description": "Page number (1-based).",
+        "required": false,
+        "schema": {
+          "minimum": 1,
+          "type": "integer",
+          "default": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "description": "Number of records per page.",
+        "required": false,
+        "schema": {
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer",
+          "default": 20
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Repayment list retrieved successfully.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RepaymentListResponse"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Missing or invalid API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ]
+  },
+  "post": {
+    "summary": "Create a repayment",
+    "description": "Record a repayment against an existing loan. This is the system signal that a borrower has paid back part or all of a loan.",
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/CreateRepaymentRequest"
+          },
+          "example": {
+            "loanId": "loan_98765",
+            "amount": 15000,
+            "currency": "NGN",
+            "paidAt": "2025-12-12T07:30:00Z",
+            "method": "bank_transfer",
+            "reference": "TRX_9J2K1"
+          }
+        }
+      },
+      "required": true
+    },
+    "responses": {
+      "201": {
+        "description": "Repayment recorded successfully.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Repayment"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Invalid input payload.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Missing or invalid API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Loan not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ]
+  }
+},
+"/repayments/{id}": {
+  "get": {
+    "summary": "Get a repayment",
+    "description": "Retrieve a single repayment by ID.",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "The repayment ID.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "rep_001"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Repayment found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Repayment"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Missing or invalid API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Repayment not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ]
+  }
+}
   "components": {
     "schemas": {
       "Borrower": {
@@ -1025,7 +1237,7 @@
             "nullable": true,
             "example": "post_due_soft",
             "enum": [
-              "pre_due-soft",
+              "pre_due_soft",
               "pre_due_strong",
               "due_day",
               "post_due_soft",
@@ -1295,6 +1507,127 @@
         }
       }
     },
+    "Repayment": {
+  "required": ["id", "loanId", "borrowerId", "amount", "currency", "status", "paidAt", "createdAt"],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "example": "rep_001"
+    },
+    "loanId": {
+      "type": "string",
+      "example": "loan_98765"
+    },
+    "borrowerId": {
+      "type": "string",
+      "example": "bor_12345"
+    },
+    "amount": {
+      "type": "number",
+      "format": "float",
+      "example": 15000
+    },
+    "currency": {
+      "type": "string",
+      "example": "NGN"
+    },
+    "paidAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2025-12-12T07:30:00Z"
+    },
+    "method": {
+      "type": "string",
+      "description": "How the repayment was made.",
+      "example": "bank_transfer",
+      "enum": ["bank_transfer", "card", "wallet", "cash", "ussd", "direct_debit", "other"]
+    },
+    "reference": {
+      "type": "string",
+      "description": "External transaction reference if provided.",
+      "nullable": true,
+      "example": "TRX_9J2K1"
+    },
+    "status": {
+      "type": "string",
+      "example": "recorded",
+      "enum": ["recorded", "failed", "reversed"]
+    },
+    "failureReason": {
+      "type": "string",
+      "nullable": true,
+      "example": null
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2025-12-12T07:31:10Z"
+    }
+  }
+},
+"CreateRepaymentRequest": {
+  "required": ["loanId", "amount", "currency", "paidAt"],
+  "type": "object",
+  "properties": {
+    "loanId": {
+      "type": "string",
+      "example": "loan_98765"
+    },
+    "amount": {
+      "type": "number",
+      "format": "float",
+      "example": 15000
+    },
+    "currency": {
+      "type": "string",
+      "example": "NGN"
+    },
+    "paidAt": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2025-12-12T07:30:00Z"
+    },
+    "method": {
+      "type": "string",
+      "example": "bank_transfer",
+      "enum": ["bank_transfer", "card", "wallet", "cash", "ussd", "direct_debit", "other"]
+    },
+    "reference": {
+      "type": "string",
+      "nullable": true,
+      "example": "TRX_9J2K1"
+    }
+  }
+},
+"RepaymentListResponse": {
+  "required": ["data", "page", "pageSize", "total", "hasMore"],
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Repayment"
+      }
+    },
+    "page": {
+      "type": "integer",
+      "example": 1
+    },
+    "pageSize": {
+      "type": "integer",
+      "example": 20
+    },
+    "total": {
+      "type": "integer",
+      "example": 0
+    },
+    "hasMore": {
+      "type": "boolean",
+      "example": false
+    }
+  }
+},
     "securitySchemes": {
       "ApiKeyAuth": {
         "type": "apiKey",
