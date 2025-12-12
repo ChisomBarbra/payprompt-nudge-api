@@ -1,0 +1,445 @@
+ {
+  "info": {
+    "name": "PayPrompt Nudge API",
+    "_postman_id": "b6d5b4b8-0000-4000-9000-paypromptnudge",
+    "description": "Postman/Bruno-ready collection for PayPrompt Nudge API. Includes borrowers, loans, reminders, and webhook examples using sandbox base URL and API key variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Borrowers",
+      "item": [
+        {
+          "name": "Create Borrower",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Ada Chidi\",\n  \"phone\": \"+234801234578\",\n  \"email\": \"adachidi@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/borrowers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers"
+              ]
+            },
+            "description": "Create a new borrower in the PayPrompt sandbox environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Borrower by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/borrowers/{{borrowerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers",
+                "{{borrowerId}}"
+              ]
+            },
+            "description": "Fetch a single borrower by ID. Use an ID returned from Create Borrower."
+          },
+          "response": []
+        },
+        {
+          "name": "List Borrowers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/borrowers?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "borrowers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List borrowers with pagination."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Loans",
+      "item": [
+        {
+          "name": "Create Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"borrowerId\": \"bor_12345\",\n  \"principal\": 50000,\n  \"currency\": \"NGN\",\n  \"dueDate\": \"2025-12-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/loans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "loans"
+              ]
+            },
+            "description": "Create a loan for an existing borrower. Replace borrowerId with a valid ID from Create Borrower."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Loan by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/loans/{{loanId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "loans",
+                "{{loanId}}"
+              ]
+            },
+            "description": "Get a loan by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "List Loans",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/loans?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "loans"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List loans with pagination."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reminders",
+      "item": [
+        {
+          "name": "Schedule Reminder (Template-Based)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loanId\": \"loan_98765\",\n  \"type\": \"sms\",\n  \"triggerType\": \"before_due\",\n  \"daysOffset\": 3,\n  \"templateType\": \"pre_due_soft\",\n  \"channelFallback\": [\"email\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reminders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reminders"
+              ]
+            },
+            "description": "Schedule a pre-due reminder using a predefined template."
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule Reminder (Custom Message)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loanId\": \"loan_98765\",\n  \"type\": \"whatsapp\",\n  \"triggerType\": \"after_due\",\n  \"daysOffset\": 1,\n  \"customMessage\": \"Hi {{name}}, your repayment of {{amount}} was due on {{due_date}} and is now overdue. Please complete your payment as soon as possible to avoid extra charges.\",\n  \"channelFallback\": [\"sms\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reminders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reminders"
+              ]
+            },
+            "description": "Schedule a reminder using a fully custom message."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reminder by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reminders/{{reminderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reminders",
+                "{{reminderId}}"
+              ]
+            },
+            "description": "Retrieve a single reminder by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "List Reminders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reminders?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reminders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List reminders with pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Send Test Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reminders/{{reminderId}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reminders",
+                "{{reminderId}}",
+                "test"
+              ]
+            },
+            "description": "Trigger a test send for an existing reminder configuration."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Example Event: reminder.sent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://example.com/webhook-payloads/reminder.sent",
+              "host": [
+                "https://example.com"
+              ],
+              "path": [
+                "webhook-payloads",
+                "reminder.sent"
+              ]
+            },
+            "description": "Placeholder request. Use the body below as a reference payload when building your webhook consumer."
+          },
+          "response": [
+            {
+              "name": "Sample reminder.sent event",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://example.com",
+                  "host": [
+                    "https://example.com"
+                  ]
+                }
+              },
+              "body": "{\n  \"id\": \"evt_01HFQ3J5V6M9T2\",\n  \"type\": \"reminder.sent\",\n  \"createdAt\": \"2025-11-13T15:04:05Z\",\n  \"data\": {\n    \"reminder\": { },\n    \"delivery\": {\n      \"channel\": \"sms\",\n      \"status\": \"sent\",\n      \"attempts\": 1,\n      \"lastAttemptAt\": \"2025-11-13T15:04:05Z\",\n      \"failureReason\": null\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example Event: reminder.failed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://example.com/webhook-payloads/reminder.failed",
+              "host": [
+                "https://example.com"
+              ],
+              "path": [
+                "webhook-payloads",
+                "reminder.failed"
+              ]
+            },
+            "description": "Placeholder request. Use the body below as a reference payload when building your webhook consumer."
+          },
+          "response": [
+            {
+              "name": "Sample reminder.failed event",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "https://example.com",
+                  "host": [
+                    "https://example.com"
+                  ]
+                }
+              },
+              "body": "{\n  \"id\": \"evt_01HFQ4JTT8LM9X\",\n  \"type\": \"reminder.failed\",\n  \"createdAt\": \"2025-11-13T15:10:00Z\",\n  \"data\": {\n    \"reminder\": { },\n    \"delivery\": {\n      \"channel\": \"sms\",\n      \"status\": \"failed\",\n      \"attempts\": 3,\n      \"lastAttemptAt\": \"2025-11-13T15:10:00Z\",\n      \"failureReason\": \"Phone unreachable\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://sandbox.payprompt.dev/v1",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "SANDBOX_API_KEY",
+      "type": "string"
+    },
+    {
+      "key": "borrowerId",
+      "value": "bor_12345",
+      "type": "string"
+    },
+    {
+      "key": "loanId",
+      "value": "loan_98765",
+      "type": "string"
+    },
+    {
+      "key": "reminderId",
+      "value": "rem_001",
+      "type": "string"
+    }
+  ]
+}
