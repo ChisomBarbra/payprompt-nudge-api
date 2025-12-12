@@ -1,0 +1,1306 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PayPrompt Nudge API",
+    "description": "An API for lenders and financial platforms to automate repayment reminders (nudges) via SMS, Email, and WhatsApp.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.payprompt.dev/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://sandbox.payprompt.dev/v1",
+      "description": "Sandbox"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/borrowers": {
+      "get": {
+        "summary": "List borrowers",
+        "description": "Retrieve a paginated list of borrowers.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter borrowers by status.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based).",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of records per page.",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Borrower list retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BorrowerListResponse"
+                },
+                "example": {
+                  "data": [],
+                  "page": 1,
+                  "pageSize": 20,
+                  "total": 0,
+                  "hasMore": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a borrower",
+        "description": "Register a new borrower that loans and reminders can be attached to.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBorrowerRequest"
+              },
+              "example": {
+                "fullName": "Ada Chidi",
+                "email": "adachidi@example.com",
+                "phone": "+2348012345678"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Borrower created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Borrower"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/borrowers/{id}": {
+      "get": {
+        "summary": "Get a borrower",
+        "description": "Retrieve a single borrower by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The borrower ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "bor_12345"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Borrower found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Borrower"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Borrower not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/loans": {
+      "get": {
+        "summary": "List loans",
+        "description": "Retrieve a paginated list of loans.",
+        "parameters": [
+          {
+            "name": "borrowerId",
+            "in": "query",
+            "description": "Filter loans by borrower ID.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "bor_12345"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter loans by status.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "paid",
+                "defaulted"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based).",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of records per page.",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan list retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a loan",
+        "description": "Create a new loan for a borrower.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLoanRequest"
+              },
+              "example": {
+                "borrowerId": "bor_12345",
+                "principal": 50000,
+                "currency": "NGN",
+                "dueDate": "2025-12-01"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Loan created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Borrower not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/loans/{id}": {
+      "get": {
+        "summary": "Get a loan",
+        "description": "Retrieve a single loan by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The loan ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "loan_98765"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/reminders": {
+      "get": {
+        "summary": "List reminders",
+        "description": "Retrieve a paginated list of reminders.",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "query",
+            "description": "Filter reminders by loan ID.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "loan_98765"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter reminders by status.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scheduled",
+                "sent",
+                "failed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based).",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of records per page.",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reminder list retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Schedule a reminder",
+        "description": "Schedule a repayment reminder for an existing loan.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReminderRequest"
+              },
+              "example": {
+                "loanId": "loan_98765",
+                "type": "sms",
+                "triggerType": "before_due",
+                "daysOffset": 3,
+                "channelFallback": [
+                  "email"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Reminder scheduled successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reminder"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/reminders/{id}": {
+      "get": {
+        "summary": "Get a reminder",
+        "description": "Retrieve a single reminder by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The reminder ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "rem_001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reminder found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reminder"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reminder not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/reminders/{id}/test": {
+      "post": {
+        "summary": "Trigger a test send for a reminder",
+        "description": "Trigger a test delivery for an existing reminder. In sandbox, this does not send real messages.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The reminder ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "rem_001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test send triggered.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reminder"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reminder not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/webhooks/reminders/test": {
+      "post": {
+        "summary": "Send a test reminder webhook",
+        "description": "Send a test reminder webhook event to a target URL. This is useful for verifying your webhook endpoint integration.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookTestRequest"
+              },
+              "example": {
+                "targetUrl": "https://example.com/webhooks/payprompt/test",
+                "eventType": "reminder.sent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Test webhook has been queued for delivery."
+          },
+          "400": {
+            "description": "Invalid input payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Borrower": {
+        "required": [
+          "createdAt",
+          "fullName",
+          "id",
+          "phone",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "bor_12345"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Ada Chidi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "adachidi@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+2348012345678"
+          },
+          "status": {
+            "type": "string",
+            "example": "active",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-13T10:22:00Z"
+          }
+        }
+      },
+      "CreateBorrowerRequest": {
+        "required": [
+          "fullName",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Ada Chidi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "adachidi@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+2348012345678"
+          }
+        }
+      },
+      "BorrowerListResponse": {
+        "required": [
+          "data",
+          "hasMore",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Borrower"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "example": 0
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "ErrorResponse": {
+        "required": [
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorResponse_error"
+          }
+        }
+      },
+      "Loan": {
+        "required": [
+          "borrowerId",
+          "createdAt",
+          "currency",
+          "dueDate",
+          "id",
+          "principal",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "loan_98765"
+          },
+          "borrowerId": {
+            "type": "string",
+            "example": "bor_12345"
+          },
+          "principal": {
+            "type": "number",
+            "format": "float",
+            "example": 50000
+          },
+          "currency": {
+            "type": "string",
+            "example": "NGN"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-12-01"
+          },
+          "status": {
+            "type": "string",
+            "example": "active",
+            "enum": [
+              "active",
+              "paid",
+              "defaulted"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-10T09:00:00Z"
+          }
+        }
+      },
+      "CreateLoanRequest": {
+        "required": [
+          "borrowerId",
+          "currency",
+          "dueDate",
+          "principal"
+        ],
+        "type": "object",
+        "properties": {
+          "borrowerId": {
+            "type": "string",
+            "example": "bor_12345"
+          },
+          "principal": {
+            "type": "number",
+            "format": "float",
+            "example": 50000
+          },
+          "currency": {
+            "type": "string",
+            "example": "NGN"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-12-01"
+          }
+        }
+      },
+      "LoanListResponse": {
+        "required": [
+          "data",
+          "hasMore",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Loan"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "example": 0
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "Reminder": {
+        "required": [
+          "createdAt",
+          "id",
+          "loanId",
+          "status",
+          "triggerType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "rem_001"
+          },
+          "loanId": {
+            "type": "string",
+            "example": "loan_98765"
+          },
+          "type": {
+            "type": "string",
+            "example": "sms",
+            "enum": [
+              "sms",
+              "email",
+              "whatsapp"
+            ]
+          },
+          "triggerType": {
+            "type": "string",
+            "example": "before_due",
+            "enum": [
+              "before_due",
+              "on_due",
+              "after_due"
+            ]
+          },
+          "daysOffset": {
+            "type": "integer",
+            "description": "Required when triggerType is before_due or after_due.",
+            "nullable": true,
+            "example": 3
+          },
+          "status": {
+            "type": "string",
+            "example": "scheduled",
+            "enum": [
+              "scheduled",
+              "sent",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "channelFallback": {
+            "type": "array",
+            "example": [
+              "email"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "sms",
+                "email",
+                "whatsapp"
+              ]
+            }
+          },
+          "templateType": {
+            "type": "string",
+            "description": "Template category used when this reminder was created, if any.",
+            "nullable": true,
+            "example": "post_due_soft",
+            "enum": [
+              "pre_due-soft",
+              "pre_due_strong",
+              "due_day",
+              "post_due_soft",
+              "post_due_strong"
+            ]
+          },
+          "lastSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": null
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-11T14:30:00Z"
+          }
+        }
+      },
+      "CreateReminderRequest": {
+        "required": [
+          "loanId",
+          "triggerType",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "loanId": {
+            "type": "string",
+            "example": "loan_98765"
+          },
+          "type": {
+            "type": "string",
+            "example": "sms",
+            "enum": [
+              "sms",
+              "email",
+              "whatsapp"
+            ]
+          },
+          "triggerType": {
+            "type": "string",
+            "example": "before_due",
+            "enum": [
+              "before_due",
+              "on_due",
+              "after_due"
+            ]
+          },
+          "daysOffset": {
+            "type": "integer",
+            "description": "Required when triggerType is before_due or after_due.",
+            "example": 3
+          },
+          "channelFallback": {
+            "type": "array",
+            "example": [
+              "email"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "sms",
+                "email",
+                "whatsapp"
+              ]
+            }
+          },
+          "templateType": {
+            "type": "string",
+            "description": "Optional template category used to generate the reminder message.",
+            "example": "pre_due_soft",
+            "enum": [
+              "pre_due_soft",
+              "pre_due_strong",
+              "due_day",
+              "post_due_soft",
+              "post_due_strong"
+            ]
+          },
+          "customMessage": {
+            "type": "string",
+            "description": "Optional custom message body to send instead of a predefined template. Supports variables like {{name}}, {{amount}}, {{due_date}}.",
+            "example": "Hi {{name}}, your repayment of {{amount}} is due tomorrow ({{due_date}}). Please make your payment to avoid any late fees."
+          }
+        }
+      },
+      "ReminderListResponse": {
+        "required": [
+          "data",
+          "hasMore",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reminder"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "example": 0
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "WebhookTestRequest": {
+        "required": [
+          "eventType",
+          "targetUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "targetUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/webhooks/payprompt/test"
+          },
+          "eventType": {
+            "type": "string",
+            "example": "reminder.sent",
+            "enum": [
+              "reminder.sent",
+              "reminder.failed"
+            ]
+          }
+        }
+      },
+      "ReminderWebhookEvent": {
+        "required": [
+          "createdAt",
+          "data",
+          "id",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "evt_01HFQ3J5V6M9T2"
+          },
+          "type": {
+            "type": "string",
+            "example": "reminder.sent",
+            "enum": [
+              "reminder.sent",
+              "reminder.failed"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-13T15:04:05Z"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReminderWebhookEvent_data"
+          }
+        },
+        "description": "Payload sent to your webhook endpoint when a reminder is sent or fails."
+      },
+      "ErrorResponse_error_details": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "example": "phone"
+          },
+          "issue": {
+            "type": "string",
+            "example": "must be in E.164 format"
+          }
+        }
+      },
+      "ErrorResponse_error": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "INVALID_INPUT"
+          },
+          "message": {
+            "type": "string",
+            "example": "The phone number is invalid."
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorResponse_error_details"
+            }
+          }
+        }
+      },
+      "ReminderWebhookEvent_data_delivery": {
+        "required": [
+          "attempts",
+          "channel",
+          "lastAttemptAt",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "example": "sms",
+            "enum": [
+              "sms",
+              "email",
+              "whatsapp"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "sent",
+            "enum": [
+              "sent",
+              "failed"
+            ]
+          },
+          "attempts": {
+            "type": "integer",
+            "example": 1
+          },
+          "lastAttemptAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-13T15:04:05Z"
+          },
+          "failureReason": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "ReminderWebhookEvent_data": {
+        "required": [
+          "delivery",
+          "reminder"
+        ],
+        "type": "object",
+        "properties": {
+          "reminder": {
+            "$ref": "#/components/schemas/Reminder"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/ReminderWebhookEvent_data_delivery"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+    }
+  }
+}
